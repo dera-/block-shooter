@@ -13,7 +13,7 @@ function main(param) {
 		// このシーンで利用するアセットのIDを列挙し、シーンに通知します
 		assetIds: ["player", "shot", "se"]
 	});
-	var time = 60; // 制限時間
+	var time = 20; // 制限時間
 	if (param.sessionParameter.totalTimeLimit) {
 		time = param.sessionParameter.totalTimeLimit; // セッションパラメータで制限時間が指定されたらその値を使用します
 	}
@@ -22,7 +22,7 @@ function main(param) {
 	// 市場コンテンツのランキングモードでは、g.game.vars.gameState.score の値をスコアとして扱います
 	// プレイ閾値も追加しています
 	g.game.vars.gameState = { score: 0, playThreshold: 1 };
-	scene.loaded.add(function () {
+	scene.loaded.handle(function () {
 		// ここからゲーム内容を記述します
 		// プレイヤーを生成します
 		var player = new g.Sprite({
@@ -34,7 +34,7 @@ function main(param) {
 		// プレイヤーの初期座標を、画面の中心に設定します
 		player.x = (g.game.width - player.width) / 2;
 		player.y = (g.game.height - player.height) / 2;
-		player.update.add(function () {
+		player.update.handle(function () {
 			// 毎フレームでY座標を再計算し、プレイヤーの飛んでいる動きを表現します
 			// ここではMath.sinを利用して、時間経過によって増加するg.game.ageと組み合わせて
 			player.y = (g.game.height - player.height) / 2 + Math.sin(g.game.age % (g.game.fps * 10) / 4) * 10;
@@ -81,7 +81,7 @@ function main(param) {
 		for (var i = 0; i < rectCount; i++) {
 			filledRects[i] = new g.FilledRect({
 				scene: scene,
-				cssColor: random.get(0, 1) === 0 ? "red" : "blue",
+				cssColor: "blue", //random.get(0, 1) === 0 ? "red" : "blue",
 				width: rectSize,
 				height: rectSize,
 				x: g.game.width - rectSize,
@@ -90,7 +90,7 @@ function main(param) {
 			scene.append(filledRects[i]);
 		}
 		// 画面をタッチしたとき、SEを鳴らしながら弾を飛ばします。
-		scene.pointDownCapture.add(function () {
+		scene.pointDownCapture.handle(function () {
 			// 弾が切れたら弾の生成処理を止める
 			if (currentBulletCount <= 0) {
 				return;
@@ -110,7 +110,7 @@ function main(param) {
 			// 弾の初期座標を、プレイヤーの少し右に設定します
 			shot.x = player.x + player.width;
 			shot.y = player.y;
-			shot.update.add(function () {
+			shot.update.handle(function () {
 				// 毎フレームで座標を確認し、画面外に出ていたら弾をシーンから取り除きます
 				if (shot.x > g.game.width)
 					shot.destroy();
@@ -143,7 +143,7 @@ function main(param) {
 			});
 			scene.append(shot);
 		});
-		scene.update.add(function () {
+		scene.update.handle(function () {
 			if (time <= 0) {
 				// RPGアツマール環境であればランキングを表示します
 				if (param.isAtsumaru) {
@@ -152,6 +152,7 @@ function main(param) {
 						window.RPGAtsumaru.experimental.scoreboards.display(boardId_1);
 					});
 				}
+				g.game.terminateGame();
 				return true; // trueを返すことでハンドラの登録が解除されます
 			}
 			// カウントダウン処理

@@ -18,5 +18,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/akashic-contents/block-shooter.git"
+  },
+  "dependencies": {
+    "@akashic/akashic-engine": "^1.13.0"
   }
 }
